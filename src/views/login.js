@@ -3,7 +3,6 @@ import Card from '../components/card';
 import FormGroup from '../components/form-group';
 
 import UsuarioService from '../app/service/usuarioService';
-import localStorageService from '../app/service/localStorageService';
 import { msgError } from '../components/toastr';
 import { withRouter } from 'react-router-dom';
 import { AuthContext } from '../main/provedorAutenticacao';
