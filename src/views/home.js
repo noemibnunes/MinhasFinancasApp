@@ -15,7 +15,7 @@ class Home extends React.Component{
     }
 
     componentDidMount() {
-        const userLogado = this.context.userAutenticado;
+        const userLogado = this.context.usuarioAutenticado;
         this.usuarioService.obterSaldo(userLogado.id)
         .then(response => {
             this.setState({saldo: response.data})
@@ -35,13 +35,13 @@ class Home extends React.Component{
                 
                 <p className="lead">
                     <a className="btn btn-primary btn-lg" 
-                        href="#/cadastro" 
+                        href="/cadastro" 
                         role="button"><i className="pi pi-users"></i>  
                         Cadastrar Usuário
                     </a>
                     
                     <a className="btn btn-danger btn-lg" 
-                        href="#/CadastroLancamento" 
+                        href="/CadastroLancamento" 
                         role="button"><i className="pi pi-money-bill"></i>  
                          Cadastrar Lançamento
                     </a>

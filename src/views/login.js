@@ -24,11 +24,11 @@ class Login extends React.Component {
         this.service.autenticar({
             email: this.state.email,
             senha: this.state.senha
-        }).then(response => {
+        }).then( response => {
             this.context.iniciarSessao(response.data)
             this.props.history.push('/home')
-        }).catch(erro => {
-            msgError(erro.response.data)
+        }).catch( erro => {
+           msgError(erro.response.data)
         })
     }
 
@@ -39,7 +39,7 @@ class Login extends React.Component {
     render(){
         return(
             <div className="row">
-                <div className="col-md-6" style={ { position: 'relative', left: '300px' } }>
+                <div className="col-md-6 offset-md-3">
                     <div className='bs-docs-section'>
                         <Card title="Login">
                             <div className='row'>

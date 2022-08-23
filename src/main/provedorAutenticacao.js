@@ -1,37 +1,72 @@
-import React from "react";
+import React from 'react'
 
-import AuthService from "../app/service/authService";
+import AuthService from '../app/service/authService'
+import jwt from 'jsonwebtoken'
+
 export const AuthContext = React.createContext()
 export const AuthConsumer = AuthContext.Consumer;
 
 const AuthProvider = AuthContext.Provider;
 
-class ProvedorAutenticacao extends React.Component {
+class ProvedorAutenticacao extends React.Component{
+
     state = {
-        userAutenticado: null,
-        isAutenticado: false
+        usuarioAutenticado: null,
+        isAutenticado: false,
+        isLoading: true
     }
-    
-    iniciarSessao = (user) => {
-        AuthService.login(user);
-        this.setState({isAutenticado: true, userAutenticado: user});
+
+    iniciarSessao = (tokenDTO) => {
+        const token = tokenDTO.token
+        const claims = jwt.decode(token)
+        const usuario = {
+            id: claims.userid,
+            nome: claims.nome
+        }
+        
+        AuthService.logar(usuario, token);
+        this.setState({ isAutenticado: true, usuarioAutenticado: usuario })
     }
 
     encerrarSessao = () => {
-        AuthService.removerUserAutenticado();
-        this.setState({isAutenticado: false, userAutenticado: null});
+        AuthService.removerUsuarioAutenticado();
+        this.setState({ isAutenticado: false, usuarioAutenticado: null})
     }
 
-    render() {
-        const contexto = { // props e metodos que vão ser divididos com os filhos
-            userAutenticado: this.state.userAutenticado,
+    async componentDidMount(){
+        const isAutenticado = AuthService.isUserAutenticado()
+        if(isAutenticado){
+            const usuario = await AuthService.refreshSession()
+            this.setState({
+                isAutenticado: true,
+                usuarioAutenticado: usuario,
+                isLoading: false
+            })
+        }else{
+            this.setState( previousState => {
+                return {
+                    ...previousState,
+                    isLoading: false
+                }
+            })
+        }
+    }
+
+    render(){
+
+        if(this.state.isLoading){
+            return null;
+        }
+
+        const contexto = {
+            usuarioAutenticado: this.state.usuarioAutenticado,
             isAutenticado: this.state.isAutenticado,
             iniciarSessao: this.iniciarSessao,
             encerrarSessao: this.encerrarSessao
         }
 
-        return (
-            <AuthProvider value={contexto}>
+        return(
+            <AuthProvider value={contexto} >
                 {this.props.children}
             </AuthProvider>
         )

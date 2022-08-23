@@ -1,21 +1,45 @@
 import LocalStorageService from "./localStorageService";
+import jwt from "jsonwebtoken";
+import ApiService from "../apiService";
+
 export const USER_LOGADO = '_usuario_logado';
+export const TOKEN = 'access_token';
 
 export default class AuthService {
-    static isUserAutenticado() {
-        const user = LocalStorageService.obterItem(USER_LOGADO);
-        return user && user.id;
+
+    static isUserAutenticado(){
+        const token = LocalStorageService.obterItem(TOKEN)
+
+        if(!token){
+            return false;
+        }
+        const decodedToken = jwt.decode(token)
+        const expiration = decodedToken.exp
+
+        const isTokenInvalido = Date.now() >= (expiration * 1000)
+
+        return !isTokenInvalido;
+    }
+    
+    static removerUsuarioAutenticado(){
+        LocalStorageService.removerItem(USER_LOGADO)
+        LocalStorageService.removerItem(TOKEN);
     }
 
-    static removerUserAutenticado() {
-        LocalStorageService.removerItem(USER_LOGADO);
+    static logar(usuario, token){
+        LocalStorageService.adicionarItem(USER_LOGADO, usuario)
+        LocalStorageService.adicionarItem(TOKEN, token);
+        ApiService.registrarToken(token)
     }
 
-    static login(user) {
-        LocalStorageService.adicionarItem(USER_LOGADO, user);
+    static obterUsuarioAutenticado(){
+        return LocalStorageService.obterItem(USER_LOGADO);
     }
 
-    static obterUserAutenticado() {
-       return LocalStorageService.obterItem(USER_LOGADO);
+    static refreshSession(){
+        const token  = LocalStorageService.obterItem(TOKEN)
+        const usuario = AuthService.obterUsuarioAutenticado()
+        AuthService.logar(usuario, token)
+        return usuario;
     }
 }
